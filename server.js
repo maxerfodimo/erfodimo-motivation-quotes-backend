@@ -7,6 +7,8 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors()); // Enable CORS
@@ -18,32 +20,38 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 const motivationQuotes = [
   {
     id: 1,
-    text: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs",
+    text: "If you have a pen, you have everything to get your goal.",
+    author: "Max Erfodimo",
     category: "passion"
   },
   {
     id: 2,
-    text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    author: "Winston Churchill",
+    text: "Love towards oneself is the key to a great Universe within a person. Find this key and open the Universe to shine like the Sun.",
+    author: "Max Erfodimo",
     category: "perseverance"
   },
   {
     id: 3,
-    text: "The future belongs to those who believe in the beauty of their dreams.",
-    author: "Eleanor Roosevelt",
+    text: "If you don't know why you wake up in the morning, maybe you should sleep a bit longer.",
+    author: "Max Erfodimo",
     category: "dreams"
   },
   {
     id: 4,
-    text: "Don't watch the clock; do what it does. Keep going.",
-    author: "Sam Levenson",
+    text: "Speed will not always lead you to a goal, especially if this goal is too far away. Regulate your energy to reach the desired.",
+    author: "Max Erfodimo",
     category: "perseverance"
   },
   {
     id: 5,
-    text: "The only limit to our realization of tomorrow is our doubts of today.",
-    author: "Franklin D. Roosevelt",
+    text: "Don't take the fear of failure on your trip for success.",
+    author: "Max Erfodimo",
+    category: "optimism"
+  },
+  {
+    id: 6,
+    text: "Love is the magic of life. Every moment in love turns the ordinary into magic.",
+    author: "Max Erfodimo",
     category: "optimism"
   }
 ];
