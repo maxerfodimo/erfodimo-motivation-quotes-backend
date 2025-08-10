@@ -148,7 +148,14 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📖 API Documentation: http://localhost:${PORT}`);
+}).on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.log(`⚠️  Port ${PORT} is already in use. Trying port ${PORT + 1}...`);
+    server.listen(PORT + 1);
+  } else {
+    console.error('Server error:', err);
+  }
 }); 
