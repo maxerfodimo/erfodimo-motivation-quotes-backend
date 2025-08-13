@@ -10,6 +10,9 @@ A simple Express.js REST API for serving motivational quotes.
 - 📝 Request logging with Morgan
 - 🌐 CORS enabled for cross-origin requests
 - 🎯 Error handling and validation
+- 🗄️ Modular database abstraction layer
+- 🔄 Easy database switching (MongoDB, PostgreSQL, etc.)
+- 📊 Database health monitoring and statistics
 
 ## Quick Start
 
@@ -35,6 +38,10 @@ npm install
 ```bash
 cp .env.example .env
 ```
+
+4. Configure database (optional):
+   - For MongoDB: Set `MONGODB_URI` and `MONGODB_DB_NAME` in `.env`
+   - For other databases: Set `DB_TYPE` and corresponding connection variables
 
 4. Start the server:
 ```bash
@@ -134,6 +141,18 @@ Returns all quotes from a specific category.
 - dreams
 - optimism
 
+#### 6. Database Health Check
+```
+GET /api/health
+```
+Returns database connection status and health information.
+
+#### 7. Database Statistics
+```
+GET /api/stats
+```
+Returns database and collection statistics.
+
 **Response:**
 ```json
 {
@@ -197,6 +216,38 @@ erfodimo-motivation-quotes-backend/
 - **Helmet** - Security headers
 - **Morgan** - HTTP request logger
 - **dotenv** - Environment variables
+- **MongoDB** - NoSQL database (with abstraction layer for easy switching)
+
+## Database Abstraction Layer
+
+The application includes a modular database abstraction layer that allows you to easily switch between different database systems:
+
+### Current Support
+- **MongoDB** (default) - NoSQL document database
+
+### Adding New Databases
+To add support for a new database:
+
+1. **Install the database driver:**
+   ```bash
+   yarn add <database-driver>
+   ```
+
+2. **Update `config/database.js`:**
+   - Add configuration to `DB_CONFIG`
+   - Add connection method to `DatabaseManager` class
+   - Update the `connect()` method
+
+3. **Update `services/quoteService.js`:**
+   - Modify database operations for the new database syntax
+
+4. **Set environment variable:**
+   ```bash
+   DB_TYPE=<database-type>
+   ```
+
+### Example: Adding PostgreSQL
+See `config/database-templates/postgresql-template.js` for a complete example of how to add PostgreSQL support.
 
 ## Contributing
 
