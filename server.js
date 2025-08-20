@@ -4,8 +4,13 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// Import database service
+// Import services
 const quoteService = require('./services/quoteService');
+const userService = require('./services/userService');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const favoritesRoutes = require('./routes/favorites');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +29,7 @@ let isDatabaseReady = false;
 async function initializeDatabase() {
   try {
     await quoteService.initialize();
+    await userService.initialize();
     isDatabaseReady = true;
     console.log('✅ Database service ready');
   } catch (error) {
@@ -40,15 +46,35 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     database: isDatabaseReady ? 'connected' : 'disconnected',
     endpoints: {
+      // Public endpoints
       getAllQuotes: 'GET /api/quotes',
       getRandomQuote: 'GET /api/quotes/random',
       getQuoteById: 'GET /api/quotes/:id',
       getQuotesByCategory: 'GET /api/quotes/category/:category',
       healthCheck: 'GET /api/health',
-      databaseStats: 'GET /api/stats'
+      databaseStats: 'GET /api/stats',
+      
+      // Authentication endpoints
+      register: 'POST /api/auth/register',
+      login: 'POST /api/auth/login',
+      getProfile: 'GET /api/auth/profile',
+      updateProfile: 'PUT /api/auth/profile',
+      deleteProfile: 'DELETE /api/auth/profile',
+      
+      // Favorites endpoints (protected)
+      getFavorites: 'GET /api/favorites',
+      addToFavorites: 'POST /api/favorites/:quoteId',
+      removeFromFavorites: 'DELETE /api/favorites/:quoteId',
+      checkFavorite: 'GET /api/favorites/check/:quoteId'
     }
   });
 });
+
+// Authentication routes
+app.use('/api/auth', authRoutes);
+
+// Favorites routes
+app.use('/api/favorites', favoritesRoutes);
 
 // Get all quotes
 app.get('/api/quotes', async (req, res) => {

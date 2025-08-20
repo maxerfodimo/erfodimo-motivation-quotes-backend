@@ -1,27 +1,23 @@
 # Motivation Quotes Backend API
 
-A simple Express.js REST API for serving motivational quotes.
+A Node.js/Express backend API for managing motivation quotes with user authentication and favorites functionality.
 
 ## Features
 
-- 🚀 Express.js server with security middleware
-- 📖 RESTful API endpoints for quotes
-- 🔒 Security headers with Helmet
-- 📝 Request logging with Morgan
-- 🌐 CORS enabled for cross-origin requests
-- 🎯 Error handling and validation
-- 🗄️ Modular database abstraction layer
-- 🔄 Easy database switching (MongoDB, PostgreSQL, etc.)
-- 📊 Database health monitoring and statistics
+- **Quote Management**: Get all quotes, random quotes, quotes by category
+- **User Authentication**: JWT-based authentication with registration and login
+- **User Profiles**: View, update, and delete user profiles
+- **Favorites System**: Add/remove quotes to favorites, view favorite quotes
+- **Database**: MongoDB with automatic indexing and connection management
+- **Security**: Password hashing, JWT tokens, input validation
 
-## Quick Start
-
-### Prerequisites
+## Prerequisites
 
 - Node.js (v14 or higher)
+- MongoDB (local or Atlas)
 - npm or yarn
 
-### Installation
+## Installation
 
 1. Clone the repository:
 ```bash
@@ -34,144 +30,185 @@ cd erfodimo-motivation-quotes-backend
 npm install
 ```
 
-3. Create environment file:
+3. Set up environment variables:
 ```bash
-cp .env.example .env
+cp env.example .env
 ```
 
-4. Configure database (optional):
-   - For MongoDB: Set `MONGODB_URI` and `MONGODB_DB_NAME` in `.env`
-   - For other databases: Set `DB_TYPE` and corresponding connection variables
+4. Configure your `.env` file:
+```env
+# Server Configuration
+PORT=3000
+NODE_ENV=development
 
-4. Start the server:
+# Database Configuration
+DB_TYPE=mongodb
+MONGODB_URI=mongodb://localhost:27017
+MONGODB_DB_NAME=motivation_quotes
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+```
+
+5. Start the server:
 ```bash
-# Development mode with auto-reload
+# Development mode
 npm run dev
 
 # Production mode
 npm start
 ```
 
-The server will start on `http://localhost:3000`
-
 ## API Endpoints
 
-### Base URL
-```
-http://localhost:3000
-```
+### Public Endpoints
 
-### Endpoints
-
-#### 1. Get API Information
-```
-GET /
-```
-Returns API information and available endpoints.
-
-#### 2. Get All Quotes
+#### Get All Quotes
 ```
 GET /api/quotes
 ```
-Returns all available motivation quotes.
 
-**Response:**
-```json
-{
-  "success": true,
-  "count": 5,
-  "data": [
-    {
-      "id": 1,
-      "text": "The only way to do great work is to love what you do.",
-      "author": "Steve Jobs",
-      "category": "passion"
-    }
-  ]
-}
-```
-
-#### 3. Get Random Quote
+#### Get Random Quote
 ```
 GET /api/quotes/random
 ```
-Returns a random motivation quote.
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": 2,
-    "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    "author": "Winston Churchill",
-    "category": "perseverance"
-  }
-}
-```
-
-#### 4. Get Quote by ID
+#### Get Quote by ID
 ```
 GET /api/quotes/:id
 ```
-Returns a specific quote by its ID.
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "text": "The only way to do great work is to love what you do.",
-    "author": "Steve Jobs",
-    "category": "passion"
-  }
-}
-```
-
-#### 5. Get Quotes by Category
+#### Get Quotes by Category
 ```
 GET /api/quotes/category/:category
 ```
-Returns all quotes from a specific category.
 
-**Available categories:**
-- passion
-- perseverance
-- dreams
-- optimism
-
-#### 6. Database Health Check
+#### Health Check
 ```
 GET /api/health
 ```
-Returns database connection status and health information.
 
-#### 7. Database Statistics
+#### Database Statistics
 ```
 GET /api/stats
 ```
-Returns database and collection statistics.
 
-**Response:**
+### Authentication Endpoints
+
+#### Register User
+```
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+#### Login User
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+#### Get User Profile (Protected)
+```
+GET /api/auth/profile
+Authorization: Bearer <jwt-token>
+```
+
+#### Update User Profile (Protected)
+```
+PUT /api/auth/profile
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "email": "johnsmith@example.com"
+}
+```
+
+#### Delete User Account (Protected)
+```
+DELETE /api/auth/profile
+Authorization: Bearer <jwt-token>
+```
+
+### Favorites Endpoints (Protected)
+
+#### Get User's Favorite Quotes
+```
+GET /api/favorites
+Authorization: Bearer <jwt-token>
+```
+
+#### Add Quote to Favorites
+```
+POST /api/favorites/:quoteId
+Authorization: Bearer <jwt-token>
+```
+
+#### Remove Quote from Favorites
+```
+DELETE /api/favorites/:quoteId
+Authorization: Bearer <jwt-token>
+```
+
+#### Check if Quote is in Favorites
+```
+GET /api/favorites/check/:quoteId
+Authorization: Bearer <jwt-token>
+```
+
+## Authentication
+
+The API uses JWT (JSON Web Tokens) for authentication. To access protected endpoints:
+
+1. Register or login to get a JWT token
+2. Include the token in the `Authorization` header:
+   ```
+   Authorization: Bearer <your-jwt-token>
+   ```
+
+### JWT Token Format
 ```json
 {
-  "success": true,
-  "count": 2,
-  "data": [
-    {
-      "id": 2,
-      "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-      "author": "Winston Churchill",
-      "category": "perseverance"
-    },
-    {
-      "id": 4,
-      "text": "Don't watch the clock; do what it does. Keep going.",
-      "author": "Sam Levenson",
-      "category": "perseverance"
-    }
-  ]
+  "userId": "user_id_here",
+  "email": "user@example.com",
+  "iat": 1234567890,
+  "exp": 1234567890
+}
+```
+
+## Database Schema
+
+### Users Collection
+```javascript
+{
+  _id: ObjectId,
+  email: String (unique),
+  password: String (hashed),
+  name: String,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+### Favorites Collection
+```javascript
+{
+  _id: ObjectId,
+  userId: ObjectId (ref: users),
+  quoteId: ObjectId (ref: quotes),
+  addedAt: Date
 }
 ```
 
@@ -186,77 +223,120 @@ All endpoints return consistent error responses:
 }
 ```
 
-Common HTTP status codes:
-- `200` - Success
-- `404` - Resource not found
-- `500` - Internal server error
+## Security Features
+
+- **Password Hashing**: Uses bcryptjs with 12 salt rounds
+- **JWT Tokens**: Secure token-based authentication
+- **Input Validation**: Email validation, password requirements
+- **CORS**: Cross-origin resource sharing enabled
+- **Helmet**: Security headers middleware
+- **Rate Limiting**: Built-in Express rate limiting
+
+## Frontend Integration (Next.js)
+
+For your Next.js frontend, you can use the API like this:
+
+### Authentication Hook Example
+```javascript
+// hooks/useAuth.js
+import { useState, useEffect } from 'react';
+
+export const useAuth = () => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+
+  const login = async (email, password) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem('token', data.token);
+    }
+    return data;
+  };
+
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
+  };
+
+  return { user, token, login, logout };
+};
+```
+
+### API Client Example
+```javascript
+// utils/api.js
+const API_BASE = 'http://localhost:3000/api';
+
+export const apiClient = {
+  async request(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
+    
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers
+      },
+      ...options
+    };
+
+    const response = await fetch(`${API_BASE}${endpoint}`, config);
+    return response.json();
+  },
+
+  // Quotes
+  getQuotes: () => apiClient.request('/quotes'),
+  getRandomQuote: () => apiClient.request('/quotes/random'),
+  
+  // Auth
+  register: (userData) => apiClient.request('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData)
+  }),
+  
+  login: (credentials) => apiClient.request('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  }),
+  
+  // Favorites
+  getFavorites: () => apiClient.request('/favorites'),
+  addToFavorites: (quoteId) => apiClient.request(`/favorites/${quoteId}`, {
+    method: 'POST'
+  }),
+  removeFromFavorites: (quoteId) => apiClient.request(`/favorites/${quoteId}`, {
+    method: 'DELETE'
+  })
+};
+```
 
 ## Development
 
-### Scripts
-
-- `npm start` - Start the server in production mode
-- `npm run dev` - Start the server in development mode with auto-reload
-- `npm test` - Run tests (when implemented)
-
-### Project Structure
-
-```
-erfodimo-motivation-quotes-backend/
-├── server.js          # Main server file
-├── package.json       # Dependencies and scripts
-├── README.md          # This file
-└── .env.example       # Environment variables template
+### Running Tests
+```bash
+npm test
 ```
 
-## Technologies Used
-
-- **Express.js** - Web framework
-- **CORS** - Cross-origin resource sharing
-- **Helmet** - Security headers
-- **Morgan** - HTTP request logger
-- **dotenv** - Environment variables
-- **MongoDB** - NoSQL database (with abstraction layer for easy switching)
-
-## Database Abstraction Layer
-
-The application includes a modular database abstraction layer that allows you to easily switch between different database systems:
-
-### Current Support
-- **MongoDB** (default) - NoSQL document database
-
-### Adding New Databases
-To add support for a new database:
-
-1. **Install the database driver:**
-   ```bash
-   yarn add <database-driver>
-   ```
-
-2. **Update `config/database.js`:**
-   - Add configuration to `DB_CONFIG`
-   - Add connection method to `DatabaseManager` class
-   - Update the `connect()` method
-
-3. **Update `services/quoteService.js`:**
-   - Modify database operations for the new database syntax
-
-4. **Set environment variable:**
-   ```bash
-   DB_TYPE=<database-type>
-   ```
-
-### Example: Adding PostgreSQL
-See `config/database-templates/postgresql-template.js` for a complete example of how to add PostgreSQL support.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+### Environment Variables
+- `PORT`: Server port (default: 3000)
+- `NODE_ENV`: Environment (development/production)
+- `MONGODB_URI`: MongoDB connection string
+- `MONGODB_DB_NAME`: Database name
+- `JWT_SECRET`: Secret key for JWT tokens
 
 ## License
 
-MIT License - see LICENSE file for details. 
+MIT License - see LICENSE file for details.
+
+## Author
+
+Max Erfodimo 
